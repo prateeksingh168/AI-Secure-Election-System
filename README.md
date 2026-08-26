@@ -292,7 +292,7 @@ AI-Secure-Election-System/
 ├── README.md
 └── LICENSE
 👥 Team Members & Responsibilities
-👑 Team Leader — Prateek Singh
+👑 Team Leader 
 Responsibilities
 Overall system architecture
 Project planning
