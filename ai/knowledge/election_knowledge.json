@@ -1,0 +1,103 @@
+{
+  "election": {
+    "name": "College Student Council Election 2026",
+    "election_id": "E001",
+    "voting_period": "27 August 2026 to 28 August 2026",
+    "status": "ACTIVE"
+  },
+  "eligibility": [
+    "Only registered and verified voters marked as eligible can vote.",
+    "A voter can cast at most one vote in this election.",
+    "The backend is the final authority for eligibility and voting permission."
+  ],
+  "voting_procedure": [
+    "Log in using an authorized account.",
+    "Complete voter verification.",
+    "Open the active election.",
+    "Review candidate information.",
+    "Select one candidate and confirm the vote.",
+    "After successful submission, another vote for the same election is rejected."
+  ],
+  "security": [
+    "Passwords must be stored as secure hashes, never plaintext.",
+    "Voting endpoints must enforce authentication and authorization.",
+    "Duplicate voting must be prevented at both application and database levels.",
+    "Audit logs record important administrative and system events without exposing a voter's candidate choice."
+  ],
+  "candidates": [
+    {
+      "candidate_id": "C001",
+      "election_id": "E001",
+      "name": "Aditi Sharma",
+      "department": "CSE-AI/DS",
+      "symbol": "A",
+      "manifesto": "Improve student support services, organize technical events, and create a transparent student feedback system."
+    },
+    {
+      "candidate_id": "C002",
+      "election_id": "E001",
+      "name": "Rahul Verma",
+      "department": "CSE",
+      "symbol": "B",
+      "manifesto": "Expand coding clubs, peer learning sessions, and campus innovation activities."
+    },
+    {
+      "candidate_id": "C003",
+      "election_id": "E001",
+      "name": "Priya Singh",
+      "department": "ECE",
+      "symbol": "C",
+      "manifesto": "Promote cultural activities, student wellness initiatives, and inclusive campus events."
+    },
+    {
+      "candidate_id": "C004",
+      "election_id": "E001",
+      "name": "Kunal Patel",
+      "department": "IT",
+      "symbol": "D",
+      "manifesto": "Improve digital campus services, online notices, and student grievance tracking."
+    },
+    {
+      "candidate_id": "C005",
+      "election_id": "E001",
+      "name": "Neha Gupta",
+      "department": "CSE-DS",
+      "symbol": "E",
+      "manifesto": "Support data-driven campus planning, workshops, and student project showcases."
+    }
+  ],
+  "faqs": [
+    {
+      "question": "Can I vote twice?",
+      "answer": "No. Each eligible voter can cast only one vote in an election. The backend checks voting status before accepting a vote."
+    },
+    {
+      "question": "How do I vote?",
+      "answer": "Log in, complete verification, open the active election, review candidates, select one candidate, and confirm your vote."
+    },
+    {
+      "question": "Who decides whether I am eligible?",
+      "answer": "The election system's verified voter record and backend eligibility rules determine voting eligibility. The AI assistant only explains information; it does not make eligibility decisions."
+    },
+    {
+      "question": "What happens if I try to vote again?",
+      "answer": "The system rejects the second attempt and reports that the voter has already voted in that election."
+    },
+    {
+      "question": "What information can the AI assistant provide?",
+      "answer": "It can explain election rules, voting procedure, election schedule, candidate profiles, manifestos, and FAQs from the configured election knowledge base."
+    },
+    {
+      "question": "Does the AI choose a candidate for me?",
+      "answer": "No. The AI assistant should provide neutral factual information and should not recommend or persuade a voter to choose a candidate."
+    },
+    {
+      "question": "Is this real voter data?",
+      "answer": "No. This prototype uses synthetic demo data created for testing and demonstration."
+    },
+    {
+      "question": "What is voter turnout?",
+      "answer": "Voter turnout is the number of counted votes divided by the number of eligible voters, multiplied by 100."
+    }
+  ]
+}

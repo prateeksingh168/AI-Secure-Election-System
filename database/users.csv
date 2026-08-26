@@ -1,0 +1,5 @@
+user_id,voter_id,name,email,role,status
+U001,V001,Aarav Sharma,voter001@demo-election.local,VOTER,ACTIVE
+U002,V002,Vivaan Verma,voter002@demo-election.local,VOTER,ACTIVE
+U003,V003,Aditya Singh,voter003@demo-election.local,VOTER,ACTIVE
+U004,,Election Admin,admin@demo-election.local,ADMIN,ACTIVE
