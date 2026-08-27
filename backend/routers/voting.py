@@ -18,7 +18,8 @@ def cast_vote(
         db=db,
         current_user=current_user,
         election_id=election_id,
-        candidate_id=vote_req.candidate_id
+        candidate_id=vote_req.candidate_id,
+        biometric_token=vote_req.biometric_token
     )
     
     return VoteResponse(

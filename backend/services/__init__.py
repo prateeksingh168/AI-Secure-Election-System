@@ -8,6 +8,15 @@ from services.auth import (
 )
 from services.audit import log_audit_event
 from services.voting import process_vote_casting
+from services.biometric_input_adapter import normalize_to_embedding
+from services.biometric_service import (
+    extract_embedding,
+    compare_embeddings,
+    hash_embedding,
+    enroll_voter_biometric,
+    verify_voter_biometric,
+    verify_biometric_session_token
+)
 
 __all__ = [
     "hash_password",
@@ -18,4 +27,11 @@ __all__ = [
     "require_voter",
     "log_audit_event",
     "process_vote_casting",
+    "normalize_to_embedding",
+    "extract_embedding",
+    "compare_embeddings",
+    "hash_embedding",
+    "enroll_voter_biometric",
+    "verify_voter_biometric",
+    "verify_biometric_session_token",
 ]

@@ -1,9 +1,11 @@
+from typing import Optional
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict
 from models.vote import VoteStatus
 
 class VoteRequest(BaseModel):
     candidate_id: str
+    biometric_token: Optional[str] = None
 
 class VoteResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)

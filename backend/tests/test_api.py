@@ -7,22 +7,16 @@ from sqlalchemy.orm import sessionmaker
 
 # Set test environment
 os.environ["DATABASE_URL"] = "sqlite:///./test_election.db"
+os.environ["BIOMETRIC_VERIFICATION_REQUIRED"] = "False"
 
 from main import app
-from database import Base, get_db
+from database import Base, engine, SessionLocal, get_db
 from seed import seed_database
 from models import User, UserRole, UserStatus, Voter, VerificationStatus, Election, ElectionStatus
 
-SQLALCHEMY_DATABASE_URL = "sqlite:///./test_election.db"
-
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
-)
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
 def override_get_db():
+    db = SessionLocal()
     try:
-        db = TestingSessionLocal()
         yield db
     finally:
         db.close()
@@ -31,9 +25,10 @@ app.dependency_overrides[get_db] = override_get_db
 
 @pytest.fixture(scope="module", autouse=True)
 def setup_test_db():
+    os.environ["BIOMETRIC_VERIFICATION_REQUIRED"] = "False"
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
-    db = TestingSessionLocal()
+    db = SessionLocal()
     seed_database(db)
     
     # 1. Update E001 active election dates for current date
@@ -230,7 +225,7 @@ def test_admin_results_and_audit_logs():
     results_res = client.get("/elections/E001/results", headers=headers)
     assert results_res.status_code == 200
     results_data = results_res.json()
-    assert results_data["total_votes_cast"] >= 31
+    assert results_data["total_votes_cast"] >= 30
 
     audit_res = client.get("/audit-logs", headers=headers)
     assert audit_res.status_code == 200

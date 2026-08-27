@@ -10,11 +10,22 @@ from schemas import AIContextResponse
 router = APIRouter(prefix="/ai", tags=["AI Integration"])
 
 def get_knowledge_base() -> Dict[str, Any]:
+    # Allow override via environment variable
+    env_path = os.getenv("KNOWLEDGE_BASE_PATH")
+    if env_path and os.path.exists(env_path):
+        try:
+            with open(env_path, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception as e:
+            print(f"Error loading knowledge base from env path '{env_path}': {e}")
+
     current_dir = os.path.dirname(os.path.abspath(__file__))
+    project_root = os.path.abspath(os.path.join(current_dir, "..", ".."))
+
     possible_paths = [
+        os.path.join(project_root, "ai", "knowledge", "election_knowledge.json"),
         os.path.abspath(os.path.join(current_dir, "..", "..", "ai", "knowledge", "election_knowledge.json")),
         os.path.abspath(os.path.join(current_dir, "..", "ai", "knowledge", "election_knowledge.json")),
-        r"c:\Users\asus\OneDrive\Desktop\AI-Secure-Election-System-workspace\AI-Secure-Election-System\ai\knowledge\election_knowledge.json"
     ]
     for path in possible_paths:
         if os.path.exists(path):
@@ -22,7 +33,7 @@ def get_knowledge_base() -> Dict[str, Any]:
                 with open(path, "r", encoding="utf-8") as f:
                     return json.load(f)
             except Exception as e:
-                print(f"Error loading knowledge base: {e}")
+                print(f"Error loading knowledge base from path '{path}': {e}")
     return {}
 
 @router.get("/context/{election_id}", response_model=AIContextResponse)

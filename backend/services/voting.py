@@ -1,5 +1,7 @@
+import os
 import uuid
 from datetime import datetime, date, timezone
+from typing import Optional
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 from models.user import User, UserRole
@@ -9,12 +11,14 @@ from models.candidate import Candidate
 from models.vote import Vote, VoteStatus
 from models.audit_log import ActorType, AuditStatus
 from services.audit import log_audit_event
+from services.biometric_service import verify_biometric_session_token
 
 def process_vote_casting(
     db: Session,
     current_user: User,
     election_id: str,
-    candidate_id: str
+    candidate_id: str,
+    biometric_token: Optional[str] = None
 ) -> Vote:
     # 1. Authenticated check (current_user must be present)
     if not current_user:
@@ -52,6 +56,23 @@ def process_vote_casting(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Voter record not found"
         )
+
+    # 1.5 Biometric verification check (inserted after Auth and before Eligibility)
+    biometric_required = os.getenv("BIOMETRIC_VERIFICATION_REQUIRED", "True").lower() == "true"
+    if biometric_required:
+        if not biometric_token or not verify_biometric_session_token(biometric_token, voter.voter_id):
+            log_audit_event(
+                db,
+                actor_type=ActorType.VOTER,
+                actor_id=voter.voter_id,
+                action="VOTE_REJECTED_NO_BIOMETRIC",
+                election_id=election_id,
+                audit_status=AuditStatus.FAILURE
+            )
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Biometric verification required for this session before casting a vote"
+            )
 
     # 2. Eligible voter check
     if not voter.eligible or voter.verification_status != VerificationStatus.VERIFIED:

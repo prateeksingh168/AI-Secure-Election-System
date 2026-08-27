@@ -9,20 +9,28 @@ from models import (
     Election, ElectionStatus,
     Candidate,
     Vote, VoteStatus,
-    AuditLog, ActorType, AuditStatus
+    AuditLog, ActorType, AuditStatus,
+    BiometricRecord, BiometricMethod, BiometricSourceType, BiometricRecordStatus
 )
 from services.auth import hash_password
 
 DEFAULT_DEMO_PASSWORD = "password123"
 
 def find_data_dir():
+    # Allow override via environment variable
+    env_path = os.getenv("DATABASE_DATA_DIR")
+    if env_path and os.path.exists(env_path):
+        return env_path
+
     # Try finding database directory relative to workspace or file location
     current_dir = os.path.dirname(os.path.abspath(__file__))
+    project_root = os.path.abspath(os.path.join(current_dir, "..", ".."))
+
     possible_paths = [
+        os.path.join(project_root, "database"),
         os.path.abspath(os.path.join(current_dir, "..", "..", "database")),
         os.path.abspath(os.path.join(current_dir, "..", "database")),
-        "database",
-        r"c:\Users\asus\OneDrive\Desktop\AI-Secure-Election-System-workspace\AI-Secure-Election-System\database"
+        "database"
     ]
     for p in possible_paths:
         if os.path.exists(p) and os.path.isfile(os.path.join(p, "users.csv")):

@@ -12,6 +12,7 @@ from routers import (
     results_router,
     audit_router,
     ai_context_router,
+    biometrics_router,
 )
 
 @asynccontextmanager
@@ -27,8 +28,8 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="AI-Based Secure Election System API",
-    description="Backend API layer for digital voting prototype enforcing strict authentication, eligibility, voting validation, audit logging, and AI context integration.",
-    version="1.0.0",
+    description="Backend API layer for digital voting prototype enforcing strict authentication, biometric verification, voter eligibility, voting validation, audit logging, and AI context integration.",
+    version="1.1.0",
     lifespan=lifespan
 )
 
@@ -50,12 +51,13 @@ app.include_router(voting_router)
 app.include_router(results_router)
 app.include_router(audit_router)
 app.include_router(ai_context_router)
+app.include_router(biometrics_router)
 
 @app.get("/")
 def root():
     return {
         "status": "online",
         "system": "AI-Based Secure Election System Backend API",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "docs_url": "/docs"
     }

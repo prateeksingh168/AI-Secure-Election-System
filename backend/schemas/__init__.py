@@ -6,6 +6,7 @@ from schemas.vote import VoteRequest, VoteResponse
 from schemas.results import ElectionResultsResponse, CandidateVoteCount
 from schemas.audit import AuditLogResponse
 from schemas.ai_context import AIContextResponse
+from schemas.biometric import BiometricInput, BiometricEnrollRequest, BiometricVerifyRequest, BiometricVerifyResponse
 
 __all__ = [
     "LoginRequest",
@@ -24,4 +25,8 @@ __all__ = [
     "CandidateVoteCount",
     "AuditLogResponse",
     "AIContextResponse",
+    "BiometricInput",
+    "BiometricEnrollRequest",
+    "BiometricVerifyRequest",
+    "BiometricVerifyResponse",
 ]

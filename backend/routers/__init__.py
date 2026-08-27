@@ -6,6 +6,7 @@ from routers.voting import router as voting_router
 from routers.results import router as results_router
 from routers.audit import router as audit_router
 from routers.ai_context import router as ai_context_router
+from routers.biometrics import router as biometrics_router
 
 __all__ = [
     "auth_router",
@@ -16,4 +17,5 @@ __all__ = [
     "results_router",
     "audit_router",
     "ai_context_router",
+    "biometrics_router",
 ]
