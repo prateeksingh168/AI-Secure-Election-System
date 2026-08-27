@@ -1,103 +1,98 @@
 {
-  "election": {
-    "name": "College Student Council Election 2026",
-    "election_id": "E001",
-    "voting_period": "27 August 2026 to 28 August 2026",
-    "status": "ACTIVE"
-  },
-  "eligibility": [
-    "Only registered and verified voters marked as eligible can vote.",
-    "A voter can cast at most one vote in this election.",
-    "The backend is the final authority for eligibility and voting permission."
+  "election_rules": [
+    {
+      "title": "Voter Eligibility",
+      "content": "Only registered and verified voters can participate. A voter must appear in the official voter list and meet age and citizenship requirements set by the election authority."
+    },
+    {
+      "title": "One Person One Vote",
+      "content": "Each eligible voter may cast only one vote in an election. The system checks voting status before accepting a ballot and rejects duplicate votes."
+    },
+    {
+      "title": "Vote Privacy",
+      "content": "Voter identity verification is separated from ballot storage so election officers cannot see who a voter selected."
+    }
   ],
   "voting_procedure": [
-    "Log in using an authorized account.",
-    "Complete voter verification.",
-    "Open the active election.",
-    "Review candidate information.",
-    "Select one candidate and confirm the vote.",
-    "After successful submission, another vote for the same election is rejected."
+    {
+      "title": "Step 1: Login",
+      "content": "Open the election portal and sign in with your registered account credentials."
+    },
+    {
+      "title": "Step 2: Identity Verification",
+      "content": "Complete verification using OTP, MFA, or the method configured by the election system."
+    },
+    {
+      "title": "Step 3: Open Ballot",
+      "content": "After verification, open the active election ballot assigned to your voter profile."
+    },
+    {
+      "title": "Step 4: Select Candidate",
+      "content": "Review the candidate list, select one candidate, and confirm your choice carefully before submission."
+    },
+    {
+      "title": "Step 5: Submit and Confirm",
+      "content": "Submit your ballot. The system shows a confirmation message or receipt reference. After successful submission, another vote in the same election is rejected."
+    }
   ],
-  "security": [
-    "Passwords must be stored as secure hashes, never plaintext.",
-    "Voting endpoints must enforce authentication and authorization.",
-    "Duplicate voting must be prevented at both application and database levels.",
-    "Audit logs record important administrative and system events without exposing a voter's candidate choice."
+  "voting_locations": [
+    {
+      "title": "Online Voting Location",
+      "content": "You can vote online through the official Secure Election System web portal after login and identity verification."
+    },
+    {
+      "title": "Assigned Election Access",
+      "content": "Your account only shows elections you are eligible for. If no ballot appears, your voter record may be unregistered, ineligible, or outside the voting period."
+    },
+    {
+      "title": "Support Channels",
+      "content": "For portal access issues, use the official election help desk or support contact published by the election authority."
+    }
   ],
-  "candidates": [
+  "election_schedule": [
     {
-      "candidate_id": "C001",
-      "election_id": "E001",
-      "name": "Aditi Sharma",
-      "department": "CSE-AI/DS",
-      "symbol": "A",
-      "manifesto": "Improve student support services, organize technical events, and create a transparent student feedback system."
+      "title": "Registration Period",
+      "content": "Voter registration must be completed before the official registration deadline."
     },
     {
-      "candidate_id": "C002",
-      "election_id": "E001",
-      "name": "Rahul Verma",
-      "department": "CSE",
-      "symbol": "B",
-      "manifesto": "Expand coding clubs, peer learning sessions, and campus innovation activities."
+      "title": "Voting Period",
+      "content": "Votes can be cast only during the official voting start and end window defined for the election."
     },
     {
-      "candidate_id": "C003",
-      "election_id": "E001",
-      "name": "Priya Singh",
-      "department": "ECE",
-      "symbol": "C",
-      "manifesto": "Promote cultural activities, student wellness initiatives, and inclusive campus events."
-    },
-    {
-      "candidate_id": "C004",
-      "election_id": "E001",
-      "name": "Kunal Patel",
-      "department": "IT",
-      "symbol": "D",
-      "manifesto": "Improve digital campus services, online notices, and student grievance tracking."
-    },
-    {
-      "candidate_id": "C005",
-      "election_id": "E001",
-      "name": "Neha Gupta",
-      "department": "CSE-DS",
-      "symbol": "E",
-      "manifesto": "Support data-driven campus planning, workshops, and student project showcases."
+      "title": "Result Declaration",
+      "content": "Results are released after voting ends and audit checks are completed by the election authority."
     }
   ],
   "faqs": [
     {
-      "question": "Can I vote twice?",
-      "answer": "No. Each eligible voter can cast only one vote in an election. The backend checks voting status before accepting a vote."
+      "title": "Can I vote more than once?",
+      "content": "No. Each eligible voter can cast only one vote per election. Duplicate attempts are blocked."
     },
     {
-      "question": "How do I vote?",
-      "answer": "Log in, complete verification, open the active election, review candidates, select one candidate, and confirm your vote."
+      "title": "Can election officers see my vote?",
+      "content": "No. The system is designed to keep voter identity separate from the submitted ballot choice."
     },
     {
-      "question": "Who decides whether I am eligible?",
-      "answer": "The election system's verified voter record and backend eligibility rules determine voting eligibility. The AI assistant only explains information; it does not make eligibility decisions."
+      "title": "What if I selected the wrong candidate?",
+      "content": "Review your selection before final confirmation. After final submission, the vote usually cannot be changed."
     },
     {
-      "question": "What happens if I try to vote again?",
-      "answer": "The system rejects the second attempt and reports that the voter has already voted in that election."
+      "title": "How do I know my vote was submitted?",
+      "content": "After successful submission, the portal shows a confirmation message or receipt reference."
     },
     {
-      "question": "What information can the AI assistant provide?",
-      "answer": "It can explain election rules, voting procedure, election schedule, candidate profiles, manifestos, and FAQs from the configured election knowledge base."
+      "title": "Where can I vote?",
+      "content": "You can vote on the official online election portal after login and verification. Your account displays only the elections you are eligible to participate in."
+    }
+  ],
+  "security_information": [
+    {
+      "title": "Duplicate Vote Prevention",
+      "content": "Before accepting a ballot, the backend checks whether the voter has already voted in that election."
     },
     {
-      "question": "Does the AI choose a candidate for me?",
-      "answer": "No. The AI assistant should provide neutral factual information and should not recommend or persuade a voter to choose a candidate."
-    },
-    {
-      "question": "Is this real voter data?",
-      "answer": "No. This prototype uses synthetic demo data created for testing and demonstration."
-    },
-    {
-      "question": "What is voter turnout?",
-      "answer": "Voter turnout is the number of counted votes divided by the number of eligible voters, multiplied by 100."
+      "title": "Audit Logs",
+      "content": "Important actions such as login, verification, and vote submission are recorded in audit logs for accountability."
     }
   ]
 }
