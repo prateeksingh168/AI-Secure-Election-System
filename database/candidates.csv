@@ -1,0 +1,6 @@
+candidate_id,election_id,name,department,symbol,manifesto
+C001,E001,Aditi Sharma,CSE-AI/DS,A,"Improve student support services, organize technical events, and create a transparent student feedback system."
+C002,E001,Rahul Verma,CSE,B,"Expand coding clubs, peer learning sessions, and campus innovation activities."
+C003,E001,Priya Singh,ECE,C,"Promote cultural activities, student wellness initiatives, and inclusive campus events."
+C004,E001,Kunal Patel,IT,D,"Improve digital campus services, online notices, and student grievance tracking."
+C005,E001,Neha Gupta,CSE-DS,E,"Support data-driven campus planning, workshops, and student project showcases."

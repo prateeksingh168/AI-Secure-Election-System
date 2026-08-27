@@ -1,0 +1,2 @@
+election_id,title,description,start_date,end_date,status,rules_version
+E001,College Student Council Election 2026,Synthetic election dataset for demonstrating a secure digital voting prototype.,2026-08-27,2026-08-28,ACTIVE,1.0
