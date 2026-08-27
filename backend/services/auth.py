@@ -9,8 +9,15 @@ from sqlalchemy.orm import Session
 from database import get_db
 from models.user import User, UserRole, UserStatus
 from schemas.user import TokenResponse
+from dotenv import load_dotenv
 
-SECRET_KEY = os.getenv("SECRET_KEY", "super-secret-key-change-in-production-2026")
+load_dotenv()
+
+SECRET_KEY = os.getenv("SECRET_KEY")
+if not SECRET_KEY:
+    raise RuntimeError(
+        "SECRET_KEY environment variable is missing. Please configure SECRET_KEY in your environment or .env file."
+    )
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 24 hours
 

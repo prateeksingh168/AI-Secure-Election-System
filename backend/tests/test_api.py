@@ -6,6 +6,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 # Set test environment
+os.environ["SECRET_KEY"] = "test-secret-key-for-pytest-execution-only-2026"
 os.environ["DATABASE_URL"] = "sqlite:///./test_election.db"
 os.environ["BIOMETRIC_VERIFICATION_REQUIRED"] = "False"
 

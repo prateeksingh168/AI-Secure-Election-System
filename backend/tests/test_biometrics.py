@@ -4,6 +4,7 @@ import pytest
 from datetime import date, timedelta
 from fastapi.testclient import TestClient
 
+os.environ["SECRET_KEY"] = "test-secret-key-for-pytest-execution-only-2026"
 os.environ["BIOMETRIC_VERIFICATION_REQUIRED"] = "True"
 
 from main import app
