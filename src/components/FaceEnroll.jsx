@@ -10,9 +10,10 @@ export default function FaceEnroll({ voterId, onEnrolled }) {
   const [stream, setStream] = useState(null);
 
   useEffect(() => {
+    let mediaStream = null;
     const initCamera = async () => {
       try {
-        const mediaStream =
+        mediaStream =
           await navigator.mediaDevices.getUserMedia({
             video: {
               facingMode: "user",
@@ -41,8 +42,8 @@ export default function FaceEnroll({ voterId, onEnrolled }) {
     initCamera();
 
     return () => {
-      if (stream) {
-        stream.getTracks().forEach((track) => track.stop());
+      if (mediaStream) {
+        mediaStream.getTracks().forEach((track) => track.stop());
       }
     };
   }, []);

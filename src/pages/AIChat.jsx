@@ -86,14 +86,13 @@ export default function AIChat() {
       return `🔒 **Security & Anonymity Features:**\n\n${secText || "Voter choice is decoupled from voter identity to ensure total secrecy."}`;
     }
 
-    // 7. General FAQs matching
+    // 7. FAQs matching
     const faqs = context.knowledge_base?.faqs || [];
     const matchedFaq = faqs.find(f => q.includes(f.title.toLowerCase()) || f.title.toLowerCase().split(" ").some(word => word.length > 3 && q.includes(word)));
     if (matchedFaq) {
       return `❓ **${matchedFaq.title}**\n\n${matchedFaq.content}`;
     }
 
-    // Default Fallback
     return `Main aapka question sahi se samajh nahi paya. Niche diye gaye questions me se kisi par click karke dekhein ya general rules, candidates aur live turnout ke baare me puchein.`;
   };
 
@@ -113,67 +112,79 @@ export default function AIChat() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 flex flex-col h-[calc(100vh-100px)] space-y-4">
-      <div>
-        <h1 className="text-2xl font-extrabold text-white flex items-center gap-2">
-          <span>🤖</span>
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">
-            AI Election Assistant
-          </span>
-        </h1>
-        <p className="text-slate-500 text-xs mt-1 uppercase tracking-widest font-semibold">Knowledge base queries</p>
-      </div>
-      
-      {/* Chat Window */}
-      <div className="flex-1 overflow-y-auto space-y-4 bg-slate-950 border border-slate-900 rounded-2xl p-6 shadow-inner">
-        {messages.map((m, i) => (
-          <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-            <div className={`max-w-[80%] px-5 py-3.5 rounded-2xl text-sm whitespace-pre-line shadow-md leading-relaxed ${
-              m.role === "user" 
-                ? "bg-blue-600 text-white rounded-br-none" 
-                : "bg-slate-900 text-slate-200 rounded-bl-none border border-slate-800"
-            }`}>
-              {m.text}
+    <div className="min-h-screen bg-[#020617] py-8 px-4 flex flex-col items-center justify-center cyber-dots">
+      <div className="w-full max-w-4xl h-[85vh] flex flex-col space-y-4 relative z-10 glass-panel-premium p-6 rounded-3xl border border-white/5 shadow-2xl">
+        <div className="flex justify-between items-center pb-4 border-b border-slate-900/60">
+          <div className="space-y-0.5">
+            <h1 className="text-2xl font-extrabold text-white tracking-tight flex items-center gap-2.5">
+              <span>🤖</span>
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">
+                AI Election Advisor
+              </span>
+            </h1>
+            <p className="text-slate-500 text-[10px] uppercase tracking-widest font-bold">Secure Knowledge Dispatcher</p>
+          </div>
+          {context && (
+            <span className="bg-blue-600/10 border border-blue-500/20 px-3 py-1 rounded-xl text-[10px] font-bold text-blue-400">
+              Active: {context.title}
+            </span>
+          )}
+        </div>
+        
+        {/* Chat Window */}
+        <div className="flex-1 overflow-y-auto space-y-4 bg-slate-950/40 border border-slate-900/60 rounded-2xl p-6 shadow-inner scrollbar-thin">
+          {messages.map((m, i) => (
+            <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+              <div className={`max-w-[80%] px-5 py-3.5 rounded-2xl text-xs whitespace-pre-line shadow-md leading-relaxed ${
+                m.role === "user" 
+                  ? "bg-blue-600 text-white rounded-br-none" 
+                  : "bg-slate-900/70 text-slate-200 rounded-bl-none border border-slate-800/80"
+              }`}>
+                {m.text}
+              </div>
             </div>
-          </div>
-        ))}
-        {loading && (
-          <div className="flex items-center gap-2 text-slate-500 text-xs ml-2 animate-pulse">
-            <div className="w-2.5 h-2.5 bg-blue-500 rounded-full animate-bounce"></div>
-            <span>Analyzing query...</span>
-          </div>
-        )}
-        <div ref={bottomRef} />
-      </div>
+          ))}
+          {loading && (
+            <div className="flex items-center gap-2 text-slate-500 text-[10px] font-bold uppercase tracking-wider ml-2 animate-pulse">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+              </span>
+              <span>Thinking...</span>
+            </div>
+          )}
+          <div ref={bottomRef} />
+        </div>
 
-      {/* Suggestion Buttons */}
-      <div className="flex gap-2 flex-wrap">
-        {SUGGESTIONS.map((s) => (
+        {/* Suggestion Buttons */}
+        <div className="flex gap-2 flex-wrap pb-2">
+          {SUGGESTIONS.map((s) => (
+            <button 
+              key={s} 
+              onClick={() => send(s)} 
+              className="text-[10px] bg-slate-950/80 hover:bg-slate-900 border border-slate-900 hover:border-slate-800 px-4 py-2 rounded-full text-slate-400 hover:text-white transition font-bold uppercase tracking-wider"
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+
+        {/* Input Area */}
+        <div className="flex gap-3">
+          <input 
+            value={input} 
+            onChange={(e) => setInput(e.target.value)} 
+            onKeyDown={(e) => e.key === "Enter" && send()} 
+            placeholder="Ask AI Advisor about candidate visions, turnout metrics, rules..." 
+            className="flex-1 px-5 py-4 rounded-xl bg-slate-950/60 border border-slate-900 text-white focus:border-blue-500 focus:outline-none text-xs font-semibold transition" 
+          />
           <button 
-            key={s} 
-            onClick={() => send(s)} 
-            className="text-xs bg-slate-900 hover:bg-slate-800 border border-slate-800 px-4 py-2 rounded-full text-slate-300 hover:text-white transition"
+            onClick={() => send()} 
+            className="bg-blue-600 hover:bg-blue-500 px-6 py-4 rounded-xl font-extrabold text-white text-xs uppercase tracking-wider transition duration-300 shadow-lg shadow-blue-500/10 hover:shadow-blue-500/20 transform hover:-translate-y-0.5"
           >
-            {s}
+            Query
           </button>
-        ))}
-      </div>
-
-      {/* Input Area */}
-      <div className="flex gap-3">
-        <input 
-          value={input} 
-          onChange={(e) => setInput(e.target.value)} 
-          onKeyDown={(e) => e.key === "Enter" && send()} 
-          placeholder="Ask rules, candidate manifestos, live turnout..." 
-          className="flex-1 px-5 py-3.5 rounded-xl bg-slate-900 border border-slate-800 text-white focus:border-blue-500 focus:outline-none text-sm transition" 
-        />
-        <button 
-          onClick={() => send()} 
-          className="bg-blue-600 hover:bg-blue-500 px-6 py-3 rounded-xl font-bold text-white shadow-lg shadow-blue-500/10 transition"
-        >
-          Send
-        </button>
+        </div>
       </div>
     </div>
   );

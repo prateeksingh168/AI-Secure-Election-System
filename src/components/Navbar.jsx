@@ -6,7 +6,7 @@ export default function Navbar() {
   const navigate = useNavigate();
 
   const links = user
-    ? user.role === "admin"
+    ? user.role?.toLowerCase() === "admin"
       ? [["Admin", "/admin"], ["Analytics", "/analytics"], ["🤖 AI Chat", "/ai-chat"]]
       : [["Dashboard", "/dashboard"], ["Candidates", "/candidates"], ["Vote", "/vote"], ["🤖 AI Chat", "/ai-chat"]]
     : [];

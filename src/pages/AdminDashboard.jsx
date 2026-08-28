@@ -13,6 +13,8 @@ export default function AdminDashboard() {
   const [msg, setMsg] = useState("");
   const [error, setError] = useState("");
 
+  const [logPage, setLogPage] = useState(1);
+
   const load = () => {
     setError("");
     api.get("/elections")
@@ -26,15 +28,19 @@ export default function AdminDashboard() {
         console.error("Failed to load elections:", err);
         setError("Error loading elections from backend.");
       });
+  };
 
-    api.get("/audit-logs")
+  useEffect(() => {
+    load();
+  }, []);
+
+  useEffect(() => {
+    api.get(`/audit-logs?page=${logPage}&limit=10`)
       .then((r) => setLogs(r.data))
       .catch((err) => {
         console.error("Failed to load audit logs:", err);
       });
-  };
-
-  useEffect(load, []);
+  }, [logPage, tab]);
 
   const handleSetStatus = async (id, status) => {
     try {
@@ -288,6 +294,24 @@ export default function AdminDashboard() {
                 ))}
               </tbody>
             </table>
+          </div>
+          {/* Pagination Controls */}
+          <div className="flex justify-between items-center mt-6">
+            <button
+              disabled={logPage === 1}
+              onClick={() => setLogPage(logPage - 1)}
+              className="bg-slate-900 hover:bg-slate-800 border border-slate-800 disabled:opacity-45 disabled:cursor-not-allowed px-4 py-2 rounded-xl text-xs font-bold text-slate-300"
+            >
+              ← Previous Page
+            </button>
+            <span className="text-slate-400 text-xs font-bold uppercase tracking-wider">Page {logPage}</span>
+            <button
+              disabled={logs.length < 10}
+              onClick={() => setLogPage(logPage + 1)}
+              className="bg-slate-900 hover:bg-slate-800 border border-slate-800 disabled:opacity-45 disabled:cursor-not-allowed px-4 py-2 rounded-xl text-xs font-bold text-slate-300"
+            >
+              Next Page →
+            </button>
           </div>
         </div>
       )}
