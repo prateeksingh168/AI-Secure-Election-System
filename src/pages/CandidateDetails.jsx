@@ -45,8 +45,8 @@ export default function CandidateDetails() {
 
   return (
     <div className="min-h-screen bg-[#020617] py-12 px-4 cyber-dots">
-      <div className="max-w-3xl mx-auto space-y-6 relative z-10">
-        <Link to="/candidates" className="text-blue-400 text-xs font-bold hover:underline flex items-center gap-1.5 uppercase tracking-wider">
+      <div className="max-w-3xl mx-auto p-8 space-y-6">
+        <Link to="/voter/candidates" className="text-blue-400 text-xs font-bold hover:underline flex items-center gap-1.5 uppercase tracking-wider">
           <span>←</span> Back to Candidates Roster
         </Link>
         

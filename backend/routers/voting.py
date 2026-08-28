@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from database import get_db
 from models import User
 from schemas import VoteRequest, VoteResponse
-from services import get_current_user, process_vote_casting
+from services import require_voter, process_vote_casting
 
 router = APIRouter(prefix="/elections", tags=["Voting"])
 
@@ -11,7 +11,7 @@ router = APIRouter(prefix="/elections", tags=["Voting"])
 def cast_vote(
     election_id: str,
     vote_req: VoteRequest,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_voter),
     db: Session = Depends(get_db)
 ):
     new_vote = process_vote_casting(

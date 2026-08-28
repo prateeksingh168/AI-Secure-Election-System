@@ -2,10 +2,11 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
-export default function Login() {
+export default function Login({ portal = "voter" }) {
   const { login } = useAuth();
   const navigate = useNavigate();
-  const [form, setForm] = useState({ email: "voter001@demo-election.local", password: "password123" });
+  const defaultEmail = portal === "admin" ? "admin@demo-election.local" : "voter001@demo-election.local";
+  const [form, setForm] = useState({ email: defaultEmail, password: "password123" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -14,15 +15,15 @@ export default function Login() {
     setLoading(true);
     setError("");
     try {
-      const user = await login(form.email, form.password);
+      const user = await login(form.email, form.password, portal);
       if (user.role?.toLowerCase() === "admin") {
-        navigate("/admin");
+        navigate("/admin/dashboard");
       } else {
-        navigate("/dashboard");
+        navigate("/voter/dashboard");
       }
     } catch (err) {
       console.error(err);
-      setError("Invalid credentials. Please verify database connection.");
+      setError(err.response?.data?.detail || "Invalid credentials. Please verify database connection.");
     } finally {
       setLoading(false);
     }
@@ -37,12 +38,14 @@ export default function Login() {
       <form onSubmit={handleSubmit} className="glass-panel-premium p-8 rounded-3xl w-full max-w-md shadow-2xl relative z-10 space-y-6 border border-white/5">
         <div className="text-center space-y-2">
           <h1 className="text-4xl font-extrabold tracking-tight text-white flex items-center justify-center gap-3">
-            <span className="drop-shadow-[0_0_15px_rgba(59,130,246,0.4)]">🗳️</span>
+            <span className="drop-shadow-[0_0_15px_rgba(59,130,246,0.4)]">{portal === "admin" ? "💼" : "🗳️"}</span>
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-100 to-blue-400">
-              Portal Access
+              {portal === "admin" ? "Admin Control" : "Voter Portal"}
             </span>
           </h1>
-          <p className="text-slate-500 text-[10px] uppercase tracking-widest font-bold">Secure Gatekeeper Authentication</p>
+          <p className="text-slate-500 text-[10px] uppercase tracking-widest font-bold">
+            {portal === "admin" ? "Systems Management Gatekeeper" : "Secure Demoratic Ballot Gateway"}
+          </p>
         </div>
 
         {error && (
@@ -78,15 +81,20 @@ export default function Login() {
           disabled={loading} 
           className="w-full bg-blue-600 hover:bg-blue-500 py-4 rounded-xl font-bold text-white transition shadow-lg shadow-blue-500/10 hover:shadow-blue-500/20 disabled:opacity-50 text-sm duration-300 transform hover:-translate-y-0.5"
         >
-          {loading ? "Decrypting Credentials..." : "Authenticate Portal Key"}
+          {loading ? "Decrypting Credentials..." : "Authenticate Key"}
         </button>
 
         <div className="p-4 bg-blue-500/5 rounded-2xl border border-blue-500/10 space-y-2">
-          <p className="text-[10px] text-blue-400 font-bold uppercase tracking-widest text-center">Demo Environment Credentials</p>
-          <p className="text-[10px] text-slate-400 text-center leading-relaxed font-semibold">
-            Voter: <span className="text-white font-bold">voter001@demo-election.local</span> / <span className="text-white font-bold">password123</span><br />
-            Admin: <span className="text-white font-bold">admin@demo-election.local</span> / <span className="text-white font-bold">password123</span>
-          </p>
+          <p className="text-[10px] text-blue-400 font-bold uppercase tracking-widest text-center">Demo Credentials</p>
+          {portal === "admin" ? (
+            <p className="text-[10px] text-slate-400 text-center leading-relaxed font-semibold">
+              Admin: <span className="text-white font-bold">admin@demo-election.local</span> / <span className="text-white font-bold">password123</span>
+            </p>
+          ) : (
+            <p className="text-[10px] text-slate-400 text-center leading-relaxed font-semibold">
+              Voter: <span className="text-white font-bold">voter001@demo-election.local</span> / <span className="text-white font-bold">password123</span>
+            </p>
+          )}
         </div>
       </form>
     </div>

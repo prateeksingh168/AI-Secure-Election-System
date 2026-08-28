@@ -7,9 +7,22 @@ export default function Navbar() {
 
   const links = user
     ? user.role?.toLowerCase() === "admin"
-      ? [["Admin", "/admin"], ["Analytics", "/analytics"], ["🤖 AI Chat", "/ai-chat"]]
-      : [["Dashboard", "/dashboard"], ["Candidates", "/candidates"], ["Vote", "/vote"], ["🤖 AI Chat", "/ai-chat"]]
-    : [];
+      ? [
+          ["Admin Dashboard", "/admin/dashboard"],
+          ["Analytics", "/admin/analytics"],
+          ["🤖 AI Chat", "/admin/ai-chat"]
+        ]
+      : [
+          ["Voter Dashboard", "/voter/dashboard"],
+          ["Candidates", "/voter/candidates"],
+          ["Vote", "/voter/vote"],
+          ["🤖 AI Chat", "/voter/ai-chat"]
+        ]
+    : [
+        ["Home", "/"],
+        ["Voter Portal", "/voter"],
+        ["Admin Portal", "/admin"]
+      ];
 
   return (
     <nav className="glass-nav px-6 py-4 flex items-center justify-between sticky top-0 z-50 transition-all duration-300">

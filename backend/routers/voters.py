@@ -4,14 +4,14 @@ from sqlalchemy.orm import Session
 from database import get_db
 from models import User, Voter, VoterParticipation
 from schemas import VoterEligibilityResponse
-from services import get_current_user
+from services import require_voter
 
 router = APIRouter(prefix="/voters", tags=["Voters"])
 
 @router.get("/me/eligibility", response_model=VoterEligibilityResponse)
 def get_voter_eligibility(
     election_id: Optional[str] = Query(None),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_voter),
     db: Session = Depends(get_db)
 ):
     if not current_user.voter_id:

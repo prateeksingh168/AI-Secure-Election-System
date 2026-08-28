@@ -119,20 +119,20 @@ export default function VoterDashboard() {
 
                 <div className="flex gap-3 flex-wrap pt-2">
                   <Link 
-                    to="/candidates" 
+                    to="/voter/candidates" 
                     className="bg-slate-950/60 hover:bg-slate-900 border border-slate-800 px-6 py-3 rounded-xl text-xs font-bold text-white transition duration-300"
                   >
                     View Candidates
                   </Link>
                   <Link 
-                    to="/ai-chat" 
+                    to="/voter/ai-chat" 
                     className="bg-purple-600/10 hover:bg-purple-600/20 border border-purple-500/20 px-6 py-3 rounded-xl text-xs font-bold text-purple-400 transition duration-300"
                   >
                     🤖 AI Election Advisor
                   </Link>
                   {election.status?.toLowerCase() === "active" && eligibility?.eligible && !eligibility?.has_voted ? (
                     <Link 
-                      to="/vote" 
+                      to="/voter/vote" 
                       className="bg-blue-600 hover:bg-blue-500 px-6 py-3 rounded-xl text-xs font-extrabold text-white transition shadow-lg shadow-blue-500/25 duration-300 transform hover:-translate-y-0.5"
                     >
                       Cast Vote →

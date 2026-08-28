@@ -284,3 +284,72 @@ def test_ai_router_access_control():
     data = res_success.json()
     assert data["election_id"] == "E_GRP_B"
     assert data["turnout"]["total_eligible_voters"] == 3
+
+# 5. TEST CROSS-PORTAL LOGIN REJECTIONS & ROLE GUARDS
+def test_cross_portal_login_rejection():
+    # Admin tries to authenticate through Voter portal -> reject 403
+    adm_voter_res = client.post("/auth/login", json={
+        "email": "admin_audit@demo-election.local",
+        "password": "password123",
+        "portal": "VOTER"
+    })
+    assert adm_voter_res.status_code == 403
+    assert "administrators" in adm_voter_res.json()["detail"].lower()
+
+    # Voter tries to authenticate through Admin portal -> reject 403
+    vtr_admin_res = client.post("/auth/login", json={
+        "email": "voter1@audit.local",
+        "password": "password123",
+        "portal": "ADMIN"
+    })
+    assert vtr_admin_res.status_code == 403
+    assert "voters are not authorized" in vtr_admin_res.json()["detail"].lower()
+
+    # Successful logins
+    vtr_vtr_res = client.post("/auth/login", json={
+        "email": "voter1@audit.local",
+        "password": "password123",
+        "portal": "VOTER"
+    })
+    assert vtr_vtr_res.status_code == 200
+
+    adm_adm_res = client.post("/auth/login", json={
+        "email": "admin_audit@demo-election.local",
+        "password": "password123",
+        "portal": "ADMIN"
+    })
+    assert adm_adm_res.status_code == 200
+
+# 6. TEST UNAUTHENTICATED API ENDPOINTS ACCESS POLICY
+def test_unauthenticated_api_endpoints_denied():
+    # Getting candidates lists without headers -> 401 Unauthorized
+    res_cand = client.get("/elections/E_GRP_A/candidates")
+    assert res_cand.status_code == 401
+
+    # Getting elections list without headers -> 401 Unauthorized
+    res_el = client.get("/elections")
+    assert res_el.status_code == 401
+
+    # Getting voter eligibility status without headers -> 401 Unauthorized
+    res_elig = client.get("/voters/me/eligibility")
+    assert res_elig.status_code == 401
+
+# 7. TEST ADMIN PRIVILEGES REJECTION ON VOTER TOKEN
+def test_admin_endpoint_voter_token_denied():
+    voter_headers = get_auth_headers("voter1@audit.local")
+
+    # Voter tries to create an election -> 403 Forbidden
+    res_create = client.post("/elections", json={
+        "title": "Hack Election",
+        "description": "Unauthorized",
+        "start_date": "2026-08-01",
+        "end_date": "2026-08-30"
+    }, headers=voter_headers)
+    assert res_create.status_code == 403
+
+    # Voter tries to patch election status -> 403 Forbidden
+    res_patch = client.patch("/elections/E_GRP_A/status", json={
+        "status": "ACTIVE"
+    }, headers=voter_headers)
+    assert res_patch.status_code == 403
+

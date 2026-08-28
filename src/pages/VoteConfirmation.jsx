@@ -39,7 +39,7 @@ export default function VoteConfirmation() {
 
         <div className="pt-2">
           <Link 
-            to="/dashboard" 
+            to="/voter/dashboard" 
             className="inline-block w-full bg-blue-600 hover:bg-blue-500 py-3.5 rounded-xl font-bold text-white transition shadow-lg shadow-blue-500/10 hover:shadow-blue-500/20 text-sm"
           >
             Return to Voter Panel

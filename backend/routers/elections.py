@@ -12,6 +12,7 @@ router = APIRouter(prefix="/elections", tags=["Elections"])
 @router.get("", response_model=List[ElectionResponse])
 def list_elections(
     status_filter: Optional[ElectionStatus] = Query(None, alias="status"),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     query = db.query(Election)
@@ -20,7 +21,11 @@ def list_elections(
     return query.all()
 
 @router.get("/{election_id}", response_model=ElectionResponse)
-def get_election(election_id: str, db: Session = Depends(get_db)):
+def get_election(
+    election_id: str,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
     election = db.query(Election).filter(Election.election_id == election_id).first()
     if not election:
         raise HTTPException(

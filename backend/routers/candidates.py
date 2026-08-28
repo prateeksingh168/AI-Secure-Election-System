@@ -5,12 +5,16 @@ from sqlalchemy.orm import Session
 from database import get_db
 from models import User, Election, Candidate, ActorType, AuditStatus
 from schemas import CandidateCreate, CandidateResponse
-from services import require_admin, log_audit_event
+from services import require_admin, log_audit_event, get_current_user
 
 router = APIRouter(prefix="/elections", tags=["Candidates"])
 
 @router.get("/{election_id}/candidates", response_model=List[CandidateResponse])
-def list_candidates(election_id: str, db: Session = Depends(get_db)):
+def list_candidates(
+    election_id: str,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
     election = db.query(Election).filter(Election.election_id == election_id).first()
     if not election:
         raise HTTPException(

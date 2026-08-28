@@ -11,25 +11,27 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 async def extract_credentials(
     request: Request,
     username: Optional[str] = Form(None),
-    password: Optional[str] = Form(None)
-) -> Tuple[Optional[str], Optional[str]]:
+    password: Optional[str] = Form(None),
+    portal: Optional[str] = Form(None)
+) -> Tuple[Optional[str], Optional[str], Optional[str]]:
     if username and password:
-        return username, password
+        return username, password, portal
     
     try:
         body = await request.json()
         email = body.get("email") or body.get("username")
         pwd = body.get("password")
-        return email, pwd
+        port = body.get("portal")
+        return email, pwd, port
     except Exception:
-        return username, password
+        return username, password, portal
 
 @router.post("/login", response_model=TokenResponse)
 async def login(
-    creds: Tuple[Optional[str], Optional[str]] = Depends(extract_credentials),
+    creds: Tuple[Optional[str], Optional[str], Optional[str]] = Depends(extract_credentials),
     db: Session = Depends(get_db)
 ):
-    email, password = creds
+    email, password, portal = creds
 
     if not email or not password:
         raise HTTPException(
@@ -52,6 +54,39 @@ async def login(
             detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"}
         )
+
+    # Validate portal-role consistency
+    if portal:
+        user_role_str = user.role.value if hasattr(user.role, "value") else str(user.role)
+        user_role_str = user_role_str.upper()
+        if "ADMIN" in user_role_str:
+            user_role_str = "ADMIN"
+        elif "VOTER" in user_role_str:
+            user_role_str = "VOTER"
+        if portal.upper() == "ADMIN" and user_role_str != "ADMIN":
+            log_audit_event(
+                db,
+                actor_type=ActorType.VOTER,
+                actor_id=user.user_id,
+                action="LOGIN_REJECTED_PORTAL_MISMATCH",
+                audit_status=AuditStatus.FAILURE
+            )
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Voters are not authorized to login via the admin portal."
+            )
+        elif portal.upper() == "VOTER" and user_role_str != "VOTER":
+            log_audit_event(
+                db,
+                actor_type=ActorType.ADMIN,
+                actor_id=user.user_id,
+                action="LOGIN_REJECTED_PORTAL_MISMATCH",
+                audit_status=AuditStatus.FAILURE
+            )
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Administrators are not authorized to login via the voter portal."
+            )
 
     # Log successful login audit event
     actor_type = ActorType.ADMIN if str(user.role).upper() == "ADMIN" else ActorType.VOTER

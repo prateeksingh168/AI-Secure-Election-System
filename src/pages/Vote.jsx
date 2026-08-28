@@ -87,7 +87,7 @@ export default function Vote() {
       localStorage.removeItem("biometric_token");
 
       // Successful vote
-      navigate("/vote-confirmation", {
+      navigate("/voter/vote-confirmation", {
         state: {
           vote_id: data.vote_id,
           timestamp: data.cast_at,

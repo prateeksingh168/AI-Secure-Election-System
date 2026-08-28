@@ -57,7 +57,7 @@ export default function Candidates() {
           {candidates.map((c) => (
             <Link 
               key={c.candidate_id} 
-              to={`/candidates/${c.candidate_id}`} 
+              to={`/voter/candidates/${c.candidate_id}`} 
               className="glass-card-premium p-6 rounded-3xl flex flex-col items-center text-center space-y-5 border border-white/5 group duration-300"
             >
               <div className="w-24 h-24 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-5xl shadow-inner group-hover:scale-105 transition-all duration-300 group-hover:shadow-glow-blue/20">
