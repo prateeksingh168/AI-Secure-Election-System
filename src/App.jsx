@@ -3,6 +3,7 @@ import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 // Pages Import
+import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import VoterDashboard from "./pages/VoterDashboard";
 import Candidates from "./pages/Candidates";
@@ -16,9 +17,10 @@ import Analytics from "./pages/Analytics";
 export default function App() {
   return (
     <BrowserRouter>
-      <div className="min-h-screen bg-gray-950 text-gray-100">
+      <div className="min-h-screen bg-slate-950 text-slate-100">
         <Navbar />
         <Routes>
+          <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
           
           {/* Voter Routes */}

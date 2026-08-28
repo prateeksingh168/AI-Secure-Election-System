@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from "react";
+import api from "../api/axios";
 
 export default function FaceVerify({ voterId, onVerified }) {
   const videoRef = useRef(null);
+  const canvasRef = useRef(null);
   const [status, setStatus] = useState("loading");
   const [message, setMessage] = useState("Initializing camera...");
   const [stream, setStream] = useState(null);
@@ -47,24 +49,60 @@ export default function FaceVerify({ voterId, onVerified }) {
     };
   }, []);
 
-  const verifyFace = () => {
-    setStatus("verifying");
-    setMessage("Verifying identity...");
+  const verifyFace = async () => {
+    try {
+      setStatus("verifying");
+      setMessage("Processing verification frame...");
 
-    // Prototype/Demo verification mode.
-    // Real biometric verification will be connected later.
-    setTimeout(() => {
-      setStatus("success");
-      setMessage("Face verification successful.");
+      const canvas = canvasRef.current;
+      const video = videoRef.current;
+      if (!canvas || !video) {
+        throw new Error("Camera not initialized");
+      }
 
-      setTimeout(() => {
+      canvas.width = video.videoWidth || 640;
+      canvas.height = video.videoHeight || 480;
+
+      const context = canvas.getContext("2d");
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      const imageBase64 = canvas.toDataURL("image/jpeg");
+
+      // API call to real-time biometric verify
+      const response = await api.post("/biometrics/verify", {
+        voter_id: voterId,
+        biometric_data: {
+          method: "FACE",
+          image_base64: imageBase64,
+        },
+      });
+
+      console.log("Biometric verification response:", response.data);
+
+      if (response.data.verified) {
+        localStorage.setItem("biometric_token", response.data.biometric_token);
+        setStatus("success");
+        setMessage("Identity verified successfully!");
+
         if (stream) {
           stream.getTracks().forEach((track) => track.stop());
         }
 
-        onVerified(true);
-      }, 700);
-    }, 1000);
+        setTimeout(() => {
+          onVerified(true);
+        }, 800);
+      } else {
+        throw new Error("Face verification failed.");
+      }
+    } catch (err) {
+      console.error("Verification error:", err);
+      setStatus("failed");
+      setMessage(
+        err.response?.data?.detail ||
+        err.message ||
+        "Biometric verification failed. Please try again."
+      );
+    }
   };
 
   const retry = () => {
@@ -79,6 +117,8 @@ export default function FaceVerify({ voterId, onVerified }) {
         playsInline
         className="w-full max-w-md rounded-2xl border-2 border-gray-700 bg-black"
       />
+
+      <canvas ref={canvasRef} className="hidden" />
 
       <p
         className={`text-sm text-center ${status === "failed"

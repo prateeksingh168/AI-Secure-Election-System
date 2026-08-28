@@ -10,33 +10,38 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      // Pehle real backend try karega
       const res = await api.post("/auth/login", { email, password });
-      const userData = res.data.user || { email, role: email.includes("admin") ? "admin" : "voter" };
+      const token = res.data.access_token;
+      localStorage.setItem("token", token);
+
+      // Fetch user profile details
+      const profileRes = await api.get("/auth/me");
+      const userData = profileRes.data;
       
-      localStorage.setItem("token", res.data.access_token || "token");
       localStorage.setItem("user", JSON.stringify(userData));
+      if (userData.voter_id) {
+        localStorage.setItem("voter_id", userData.voter_id);
+      }
       setUser(userData);
       return userData;
     } catch (err) {
-      // Agar backend offline hai, toh instant mock login kar dega (No waiting, No errors!)
-      console.warn("Backend offline, using instant mock login.");
+      console.warn("Backend API login failed, using fallback mock login.");
       const isAdmin = email.toLowerCase().includes("admin");
       
       const mockUser = {
-        id: isAdmin ? 99 : 1,
+        user_id: isAdmin ? "U999" : "U001",
+        voter_id: isAdmin ? null : "V001",
         name: isAdmin ? "System Administrator" : "Rahul Sharma",
         email: email,
         role: isAdmin ? "admin" : "voter",
-        is_verified: true,
-        is_eligible: true,
-        is_enrolled: true,
-        has_voted: false,
-        photo_url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150"
+        status: "ACTIVE"
       };
 
       localStorage.setItem("token", "mock-jwt-token-12345");
       localStorage.setItem("user", JSON.stringify(mockUser));
+      if (mockUser.voter_id) {
+        localStorage.setItem("voter_id", mockUser.voter_id);
+      }
       setUser(mockUser);
       return mockUser;
     }
