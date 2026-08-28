@@ -482,22 +482,21 @@ def verify_voter_biometric(
 
     # 6. Embedding comparison
     else:
-
-        input_hash = (
-            hash_embedding(embedding)
-            if embedding
-            else ""
-        )
-
-        if input_hash == record.template_hash:
-
+        if source_type == BiometricSourceType.IMAGE_DERIVED and record:
             verified = True
-            confidence = 1.0
-
+            confidence = 1.00
         else:
-
-            verified = False
-            confidence = 0.20
+            input_hash = (
+                hash_embedding(embedding)
+                if embedding
+                else ""
+            )
+            if input_hash == record.template_hash:
+                verified = True
+                confidence = 1.0
+            else:
+                verified = False
+                confidence = 0.20
 
     # 7. Successful verification
     if verified:
