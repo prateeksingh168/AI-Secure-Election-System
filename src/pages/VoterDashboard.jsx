@@ -16,8 +16,8 @@ export default function VoterDashboard() {
         setLoading(true);
         setError("");
         
-        // Fetch voter eligibility
-        const eligibilityRes = await api.get("/voters/me/eligibility");
+        // Fetch voter eligibility for the main election (E001)
+        const eligibilityRes = await api.get("/voters/me/eligibility?election_id=E001");
         setEligibility(eligibilityRes.data);
 
         // Fetch elections list

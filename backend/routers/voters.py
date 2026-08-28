@@ -1,7 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from typing import Optional
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from database import get_db
-from models import User, Voter
+from models import User, Voter, VoterParticipation
 from schemas import VoterEligibilityResponse
 from services import get_current_user
 
@@ -9,6 +10,7 @@ router = APIRouter(prefix="/voters", tags=["Voters"])
 
 @router.get("/me/eligibility", response_model=VoterEligibilityResponse)
 def get_voter_eligibility(
+    election_id: Optional[str] = Query(None),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -25,4 +27,20 @@ def get_voter_eligibility(
             detail="Voter record not found"
         )
 
-    return voter
+    # Compute has_voted dynamically relative to election_id
+    has_voted = False
+    if election_id:
+        has_voted = db.query(VoterParticipation).filter(
+            VoterParticipation.voter_id == voter.voter_id,
+            VoterParticipation.election_id == election_id
+        ).first() is not None
+
+    return VoterEligibilityResponse(
+        voter_id=voter.voter_id,
+        name=voter.name,
+        email=voter.email,
+        eligible=voter.eligible,
+        verification_status=voter.verification_status,
+        has_voted=has_voted,
+        role=voter.role
+    )

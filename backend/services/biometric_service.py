@@ -20,6 +20,7 @@ from models import (
     BiometricMethod,
     BiometricRecordStatus,
     BiometricSourceType,
+    BiometricAttempt,
 )
 
 from schemas.biometric import (
@@ -59,9 +60,6 @@ def extract_embedding(image_bytes: bytes) -> List[float]:
     return extract_embedding_stub(image_bytes)
 
 
-# In-memory rate limiting tracker
-# Structure: { voter_id: [timestamp1, timestamp2, ...] }
-FAILED_ATTEMPTS: Dict[str, List[datetime]] = {}
 
 
 def hash_embedding(embedding: List[float]) -> str:
@@ -117,26 +115,16 @@ def check_rate_limit(
     Lock biometric verification after
     5 failed attempts within 10 minutes.
     """
-
     now = datetime.now(timezone.utc)
-
     cutoff = now - timedelta(minutes=10)
 
-    attempts = FAILED_ATTEMPTS.get(
-        voter_id,
-        []
-    )
+    # Query persistent attempts from database
+    attempts_count = db.query(BiometricAttempt).filter(
+        BiometricAttempt.voter_id == voter_id,
+        BiometricAttempt.timestamp > cutoff
+    ).count()
 
-    recent_attempts = [
-        ts
-        for ts in attempts
-        if ts > cutoff
-    ]
-
-    FAILED_ATTEMPTS[voter_id] = recent_attempts
-
-    if len(recent_attempts) >= 5:
-
+    if attempts_count >= 5:
         log_audit_event(
             db,
             actor_type=ActorType.SYSTEM,
@@ -160,18 +148,21 @@ def record_failed_attempt(
     voter_id: str
 ):
     now = datetime.now(timezone.utc)
-
-    if voter_id not in FAILED_ATTEMPTS:
-        FAILED_ATTEMPTS[voter_id] = []
-
-    FAILED_ATTEMPTS[voter_id].append(now)
+    new_attempt = BiometricAttempt(
+        attempt_id=f"AT{uuid.uuid4().hex[:8].upper()}",
+        voter_id=voter_id,
+        timestamp=now
+    )
+    db.add(new_attempt)
+    db.commit()
 
 
 def clear_failed_attempts(
+    db: Session,
     voter_id: str
 ):
-    if voter_id in FAILED_ATTEMPTS:
-        FAILED_ATTEMPTS[voter_id] = []
+    db.query(BiometricAttempt).filter(BiometricAttempt.voter_id == voter_id).delete()
+    db.commit()
 
 
 def create_biometric_token(
@@ -510,8 +501,8 @@ def verify_voter_biometric(
 
     # 7. Successful verification
     if verified:
-
         clear_failed_attempts(
+            db,
             req.voter_id
         )
 

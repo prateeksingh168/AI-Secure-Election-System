@@ -4,8 +4,9 @@ from typing import Dict, Any
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from database import get_db
-from models import Election, Candidate, Vote, Voter, VoteStatus
+from models import Election, Candidate, Vote, Voter, VoteStatus, User, UserRole, ElectionEligibility
 from schemas import AIContextResponse
+from services import get_current_user
 
 router = APIRouter(prefix="/ai", tags=["AI Integration"])
 
@@ -37,7 +38,29 @@ def get_knowledge_base() -> Dict[str, Any]:
     return {}
 
 @router.get("/context/{election_id}", response_model=AIContextResponse)
-def get_ai_context(election_id: str, db: Session = Depends(get_db)):
+def get_ai_context(
+    election_id: str,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    if not current_user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication required"
+        )
+
+    # If voter, verify election-specific registration eligibility
+    if current_user.role == UserRole.VOTER:
+        is_eligible = db.query(ElectionEligibility).filter(
+            ElectionEligibility.election_id == election_id,
+            ElectionEligibility.voter_id == current_user.voter_id
+        ).first() is not None
+        if not is_eligible:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Access denied. You are not registered for this election."
+            )
+
     election = db.query(Election).filter(Election.election_id == election_id).first()
     if not election:
         raise HTTPException(
@@ -57,7 +80,11 @@ def get_ai_context(election_id: str, db: Session = Depends(get_db)):
         for c in candidates
     ]
 
-    total_eligible = db.query(Voter).filter(Voter.eligible == True).count()
+    # Calculate election-specific turnout
+    total_eligible = db.query(ElectionEligibility).filter(
+        ElectionEligibility.election_id == election_id
+    ).count()
+
     total_votes = db.query(Vote).filter(
         Vote.election_id == election_id,
         Vote.vote_status == VoteStatus.COUNTED

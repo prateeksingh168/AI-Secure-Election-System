@@ -13,7 +13,7 @@ os.environ["BIOMETRIC_VERIFICATION_REQUIRED"] = "False"
 from main import app
 from database import Base, engine, SessionLocal, get_db
 from seed import seed_database
-from models import User, UserRole, UserStatus, Voter, VerificationStatus, Election, ElectionStatus
+from models import User, UserRole, UserStatus, Voter, VerificationStatus, Election, ElectionStatus, ElectionEligibility, VoterParticipation
 
 def override_get_db():
     db = SessionLocal()
@@ -45,7 +45,6 @@ def setup_test_db():
         email="ineligible@demo-election.local",
         eligible=False,
         verification_status=VerificationStatus.VERIFIED,
-        has_voted=False,
         role="VOTER"
     )
     ineligible_user = User(
@@ -67,7 +66,6 @@ def setup_test_db():
         email="unverified@demo-election.local",
         eligible=True,
         verification_status=VerificationStatus.PENDING,
-        has_voted=False,
         role="VOTER"
     )
     unverified_user = User(
@@ -84,6 +82,11 @@ def setup_test_db():
     db.add(ineligible_user)
     db.add(unverified_voter)
     db.add(unverified_user)
+    
+    # Register test voters for election E001
+    db.add(ElectionEligibility(election_id="E001", voter_id="V998"))
+    db.add(ElectionEligibility(election_id="E001", voter_id="V999"))
+    
     db.commit()
         
     db.close()
@@ -257,7 +260,15 @@ def test_closed_election_results_public_access():
 
 # 6. AI CONTEXT RETRIEVAL TEST
 def test_ai_context():
-    response = client.get("/ai/context/E001")
+    # Verify unauthorized access is blocked
+    response_no_auth = client.get("/ai/context/E001")
+    assert response_no_auth.status_code == 401
+
+    # Verify authorized voter access succeeds
+    voter_login = client.post("/auth/login", json={"email": "voter001@demo-election.local", "password": "password123"})
+    voter_token = voter_login.json()["access_token"]
+
+    response = client.get("/ai/context/E001", headers={"Authorization": f"Bearer {voter_token}"})
     assert response.status_code == 200
     data = response.json()
     assert data["election_id"] == "E001"

@@ -4,11 +4,13 @@ from datetime import datetime, date, timezone
 from typing import Optional
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 from models.user import User, UserRole
 from models.voter import Voter, VerificationStatus
 from models.election import Election, ElectionStatus
 from models.candidate import Candidate
-from models.vote import Vote, VoteStatus
+from models.vote import Vote, VoteStatus, VoterParticipation
+from models.eligibility import ElectionEligibility
 from models.audit_log import ActorType, AuditStatus
 from services.audit import log_audit_event
 from services.biometric_service import verify_biometric_session_token
@@ -89,6 +91,26 @@ def process_vote_casting(
             detail="Voter is not eligible or verification status is not VERIFIED"
         )
 
+    # 2.5 Election-specific eligibility validation
+    is_eligible = db.query(ElectionEligibility).filter(
+        ElectionEligibility.election_id == election_id,
+        ElectionEligibility.voter_id == voter.voter_id
+    ).first() is not None
+
+    if not is_eligible:
+        log_audit_event(
+            db,
+            actor_type=ActorType.VOTER,
+            actor_id=voter.voter_id,
+            action="VOTE_REJECTED_NOT_REGISTERED",
+            election_id=election_id,
+            audit_status=AuditStatus.FAILURE
+        )
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Voter is not registered or eligible for this specific election"
+        )
+
     # 3. Election active check
     election = db.query(Election).filter(Election.election_id == election_id).first()
     if not election:
@@ -116,13 +138,13 @@ def process_vote_casting(
             detail="Election is not active or outside voting timeframe"
         )
 
-    # 4. Already voted check
-    existing_vote = db.query(Vote).filter(
-        Vote.election_id == election_id,
-        Vote.voter_id == voter.voter_id
+    # 4. Already voted check (election-specific participation table)
+    existing_participation = db.query(VoterParticipation).filter(
+        VoterParticipation.election_id == election_id,
+        VoterParticipation.voter_id == voter.voter_id
     ).first()
 
-    if voter.has_voted or existing_vote:
+    if existing_participation:
         log_audit_event(
             db,
             actor_type=ActorType.VOTER,
@@ -156,19 +178,43 @@ def process_vote_casting(
             detail="Candidate is not valid for this election"
         )
 
-    # 6. Record vote
+    # 6. Record vote & participation inside atomic transaction block
+    try:
+        participation = VoterParticipation(
+            participation_id=f"PT{uuid.uuid4().hex[:8].upper()}",
+            voter_id=voter.voter_id,
+            election_id=election_id,
+            participated_at=datetime.now(timezone.utc)
+        )
+        db.add(participation)
+        db.flush() # Check unique constraint instantly at database level
+    except IntegrityError:
+        db.rollback()
+        log_audit_event(
+            db,
+            actor_type=ActorType.VOTER,
+            actor_id=voter.voter_id,
+            action="VOTE_REJECTED_DUPLICATE",
+            election_id=election_id,
+            audit_status=AuditStatus.FAILURE
+        )
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Voter has already cast a vote in this election"
+        )
+
+    # Truncate time to nearest hour to preserve vote secrecy (hides correlation)
+    now = datetime.now(timezone.utc)
+    cast_at_truncated = now.replace(minute=0, second=0, microsecond=0)
+
     new_vote_id = f"VT{uuid.uuid4().hex[:8].upper()}"
     new_vote = Vote(
         vote_id=new_vote_id,
         election_id=election_id,
         candidate_id=candidate_id,
-        voter_id=voter.voter_id,
-        cast_at=datetime.now(timezone.utc),
+        cast_at=cast_at_truncated,
         vote_status=VoteStatus.COUNTED
     )
-    
-    # Set has_voted = True
-    voter.has_voted = True
     
     db.add(new_vote)
     db.commit()

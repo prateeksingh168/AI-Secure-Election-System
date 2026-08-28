@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from database import get_db
-from models import User, UserRole, Election, ElectionStatus, Candidate, Vote, Voter, VoteStatus
+from models import User, UserRole, Election, ElectionStatus, Candidate, Vote, Voter, VoteStatus, ElectionEligibility
 from schemas import ElectionResultsResponse, CandidateVoteCount
 from services import get_current_user
 
@@ -30,8 +30,10 @@ def get_election_results(
             detail="Election results are confidential until the election is CLOSED"
         )
 
-    # Total eligible voters
-    total_eligible_voters = db.query(Voter).filter(Voter.eligible == True).count()
+    # Total eligible voters registered for this specific election
+    total_eligible_voters = db.query(ElectionEligibility).filter(
+        ElectionEligibility.election_id == election_id
+    ).count()
 
     # Total votes cast
     total_votes_cast = db.query(Vote).filter(

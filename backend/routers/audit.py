@@ -13,6 +13,8 @@ def get_audit_logs(
     election_id: Optional[str] = Query(None),
     action: Optional[str] = Query(None),
     audit_status: Optional[AuditStatus] = Query(None, alias="status"),
+    page: int = Query(1, ge=1, description="Page number"),
+    limit: int = Query(50, ge=1, le=100, description="Records per page"),
     current_admin: User = Depends(require_admin),
     db: Session = Depends(get_db)
 ):
@@ -24,5 +26,6 @@ def get_audit_logs(
     if audit_status:
         query = query.filter(AuditLog.status == audit_status)
 
-    logs = query.order_by(AuditLog.timestamp.desc()).all()
+    offset = (page - 1) * limit
+    logs = query.order_by(AuditLog.timestamp.desc()).offset(offset).limit(limit).all()
     return logs

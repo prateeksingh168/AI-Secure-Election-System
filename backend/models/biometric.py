@@ -34,3 +34,13 @@ class BiometricRecord(Base):
 
     # Relationships
     voter = relationship("Voter")
+
+class BiometricAttempt(Base):
+    __tablename__ = "biometric_attempts"
+
+    attempt_id = Column(String, primary_key=True, index=True)
+    voter_id = Column(String, ForeignKey("voters.voter_id", ondelete="CASCADE"), nullable=False)
+    timestamp = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+
+    # Relationships
+    voter = relationship("Voter")

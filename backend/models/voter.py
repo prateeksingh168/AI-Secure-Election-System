@@ -17,9 +17,8 @@ class Voter(Base):
     phone = Column(String, nullable=True)
     eligible = Column(Boolean, default=True, nullable=False)
     verification_status = Column(SQLEnum(VerificationStatus), default=VerificationStatus.PENDING, nullable=False)
-    has_voted = Column(Boolean, default=False, nullable=False)
     role = Column(String, default="VOTER", nullable=False)
 
     # Relationships
     user = relationship("User", back_populates="voter", uselist=False)
-    votes = relationship("Vote", back_populates="voter")
+    participations = relationship("VoterParticipation", back_populates="voter", cascade="all, delete-orphan")

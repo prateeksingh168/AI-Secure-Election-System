@@ -8,7 +8,7 @@ from models import (
     Voter, VerificationStatus,
     Election, ElectionStatus,
     Candidate,
-    Vote, VoteStatus,
+    Vote, VoteStatus, VoterParticipation, ElectionEligibility,
     AuditLog, ActorType, AuditStatus,
     BiometricRecord, BiometricMethod, BiometricSourceType, BiometricRecordStatus
 )
@@ -75,12 +75,18 @@ def seed_database(db: Session = None):
                     phone=str(row['phone']) if pd.notna(row['phone']) else None,
                     eligible=eligible,
                     verification_status=VerificationStatus(str(row['verification_status']).upper()),
-                    has_voted=has_voted,
                     role=str(row.get('role', 'VOTER'))
                 )
                 db.add(voter_obj)
+                
+                # Register voter eligibility for baseline election E001
+                eligibility_obj = ElectionEligibility(
+                    election_id="E001",
+                    voter_id=voter_obj.voter_id
+                )
+                db.add(eligibility_obj)
             db.commit()
-            print(f"Seeded {len(voters_df)} voters.")
+            print(f"Seeded {len(voters_df)} voters and eligibility records.")
 
         # 2. Seed Users
         users_file = os.path.join(db_path, "users.csv")
@@ -153,17 +159,31 @@ def seed_database(db: Session = None):
             for _, row in votes_df.iterrows():
                 cast_at_dt = datetime.fromisoformat(str(row['cast_at'])) if 'T' in str(row['cast_at']) else datetime.strptime(str(row['cast_at']), "%Y-%m-%d %H:%M:%S")
                 voter_id = str(row['voter_id']) if 'voter_id' in row and pd.notna(row['voter_id']) else None
+                
+                # Truncate cast_at to hour to avoid temporal correlations
+                cast_at_truncated = cast_at_dt.replace(minute=0, second=0, microsecond=0)
+                
+                # Create VoterParticipation record
+                if voter_id:
+                    participation_obj = VoterParticipation(
+                        participation_id=f"PT{row['vote_id'][2:]}", # preserve PK correlation in seeder safely
+                        voter_id=voter_id,
+                        election_id=str(row['election_id']),
+                        participated_at=cast_at_dt
+                    )
+                    db.add(participation_obj)
+                
+                # Create Anonymous Vote record
                 vote_obj = Vote(
                     vote_id=str(row['vote_id']),
                     election_id=str(row['election_id']),
                     candidate_id=str(row['candidate_id']),
-                    voter_id=voter_id,
-                    cast_at=cast_at_dt,
+                    cast_at=cast_at_truncated,
                     vote_status=VoteStatus(str(row['vote_status']).upper())
                 )
                 db.add(vote_obj)
             db.commit()
-            print(f"Seeded {len(votes_df)} demo votes.")
+            print(f"Seeded {len(votes_df)} voter participations and anonymous votes.")
 
         # 6. Seed Audit Logs
         audit_file = os.path.join(db_path, "audit_logs.csv")
