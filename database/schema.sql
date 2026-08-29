@@ -85,3 +85,16 @@ CREATE TABLE audit_logs (
     FOREIGN KEY (election_id)
         REFERENCES elections(election_id)
 );
+CREATE TABLE biometric_records (
+    record_id VARCHAR(50) NOT NULL,
+    voter_id VARCHAR(20) NOT NULL,
+    method VARCHAR(20) NOT NULL,
+    template_hash VARCHAR(255) NOT NULL,
+    source_type VARCHAR(30) NOT NULL,
+    enrolled_at TIMESTAMP NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
+    PRIMARY KEY (record_id),
+    FOREIGN KEY (voter_id)
+        REFERENCES voters(voter_id),
+    UNIQUE (voter_id, method)
+);
