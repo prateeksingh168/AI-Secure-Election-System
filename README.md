@@ -133,32 +133,38 @@ Admin Login
 
 ## Project Structure
 
-`	ext
 AI-Secure-Election-System/
-â”œâ”€â”€ ai/
-â”‚   â””â”€â”€ knowledge/
-â”œâ”€â”€ backend/
-â”‚   â”œâ”€â”€ routers/
-â”‚   â”œâ”€â”€ schemas/
-â”‚   â”œâ”€â”€ services/
-â”‚   â”œâ”€â”€ models/
-â”‚   â”œâ”€â”€ main.py
-â”‚   â””â”€â”€ database.py
-â”œâ”€â”€ database/
-â”œâ”€â”€ docs/
-â”œâ”€â”€ public/
-â”œâ”€â”€ src/
-â”‚   â”œâ”€â”€ services/
-â”‚   â”œâ”€â”€ App.jsx
-â”‚   â”œâ”€â”€ App.css
-â”‚   â”œâ”€â”€ index.css
-â”‚   â””â”€â”€ main.jsx
-â”œâ”€â”€ tests/
-â”œâ”€â”€ .gitignore
-â”œâ”€â”€ package.json
-â”œâ”€â”€ package-lock.json
-â””â”€â”€ README.md
-`
+|
++-- ai/
+|   +-- knowledge/
+|
++-- backend/
+|   +-- routers/
+|   +-- schemas/
+|   +-- services/
+|   +-- models/
+|   +-- main.py
+|   +-- database.py
+|
++-- database/
+|
++-- docs/
+|
++-- public/
+|
++-- src/
+|   +-- services/
+|   +-- App.jsx
+|   +-- App.css
+|   +-- index.css
+|   +-- main.jsx
+|
++-- tests/
+|
++-- .gitignore
++-- package.json
++-- package-lock.json
++-- README.md
 
 ## Getting Started
 
@@ -253,13 +259,12 @@ npm run build
 
 ## Documentation
 
-`	ext
 docs/
-â”œâ”€â”€ architecture/
-â”œâ”€â”€ screenshots/
-â”œâ”€â”€ api/
-â””â”€â”€ project-report/
-`
+|
++-- architecture/
++-- screenshots/
++-- api/
++-- project-report/
 
 ## Limitations
 
@@ -282,7 +287,7 @@ Real-world election systems require extensive security audits, cryptographic pro
 
 ## Contributors
 
-- **Prateek Singh** - Project Lead / Full-Stack Integration
+- **Prateek Singh** 
 - **Arin Tripathi**
 - **Shaurya**
 - **Anamika**
