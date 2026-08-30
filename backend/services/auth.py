@@ -1,4 +1,4 @@
-import os
+﻿import os
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 import jwt
@@ -54,6 +54,7 @@ def create_access_token(user: User, expires_delta: Optional[timedelta] = None) -
         access_token=encoded_jwt,
         token_type="bearer",
         user_id=user.user_id,
+        voter_id=user.voter_id,
         role=user.role,
         name=user.name
     )
@@ -97,3 +98,6 @@ def require_voter(current_user: User = Depends(get_current_user)) -> User:
             detail="Voter access required"
         )
     return current_user
+
+
+

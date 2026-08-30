@@ -40,7 +40,7 @@ app = FastAPI(
 # Parse allowed origins from environment variable or default to local frontend development ports
 raw_origins = os.getenv(
     "ALLOWED_ORIGINS",
-    "http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173,http://127.0.0.1:5173"
+        "http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173,http://127.0.0.1:5173,http://localhost:5176,http://127.0.0.1:5176"
 )
 allowed_origins = [origin.strip() for origin in raw_origins.split(",") if origin.strip()]
 

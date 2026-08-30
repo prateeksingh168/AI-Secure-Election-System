@@ -41,3 +41,9 @@ dist/
 
 # IDE
 .vscode/
+
+# Project backups
+*backup*
+*.bak
+*.old
+*.tmp

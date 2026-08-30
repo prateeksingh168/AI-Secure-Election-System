@@ -1,4 +1,4 @@
-from typing import Optional
+﻿from typing import Optional
 from pydantic import BaseModel, ConfigDict
 from models.user import UserRole, UserStatus
 
@@ -10,6 +10,7 @@ class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
     user_id: str
+    voter_id: Optional[str] = None
     role: UserRole
     name: str
 
@@ -22,3 +23,7 @@ class UserResponse(BaseModel):
     email: str
     role: UserRole
     status: UserStatus
+
+
+
+
