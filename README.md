@@ -1,4 +1,4 @@
-﻿# VoteSphere - AI-Based Secure Election & Intelligent Voting System
+﻿# AI-Based Secure Election & Intelligent Voting System
 
 > A secure, privacy-aware, AI-assisted digital election prototype for educational, research, and demonstration purposes.
 
@@ -10,13 +10,21 @@
 
 ---
 
+## Project Status
+
+**Prototype - Educational / Research / Demonstration**
+
+This project is currently developed as a functional prototype demonstrating a secure digital election workflow with authentication, voter eligibility, biometric verification, voting, AI assistance, analytics, and audit logging.
+
+> **Disclaimer:** This project is not intended for use in real public elections or production electoral infrastructure.
+
 ## Disclaimer
 
-**VoteSphere is an educational prototype. It is NOT intended for use in real public elections or production electoral infrastructure.**
+This project is an educational prototype and is not intended for use in real public elections or production electoral infrastructure.
 
 ## Project Overview
 
-VoteSphere is a web-based secure election prototype demonstrating authentication, voter eligibility, biometric verification, secure vote casting, database validation, audit logging, analytics, and an AI-powered election assistant.
+The AI-Based Secure Election & Intelligent Voting System is a web-based secure election prototype demonstrating authentication, voter eligibility, biometric verification, secure vote casting, database validation, audit logging, analytics, and an AI-powered election assistant.
 
 The system provides separate interfaces for:
 
@@ -215,7 +223,7 @@ For this prototype:
 
 ## Security Model
 
-VoteSphere demonstrates JWT authentication, role-based authorization, election-specific eligibility checks, biometric verification, duplicate vote prevention, database-level validation, audit logging, and separation of voter identity from candidate-choice information.
+The system demonstrates JWT authentication, role-based authorization, election-specific eligibility checks, biometric verification, duplicate vote prevention, database-level validation, audit logging, and separation of voter identity from candidate-choice information.
 
 ## API Overview
 
