@@ -90,6 +90,7 @@ CREATE TABLE biometric_records (
     voter_id VARCHAR(20) NOT NULL,
     method VARCHAR(20) NOT NULL,
     template_hash VARCHAR(255) NOT NULL,
+    frame_data TEXT,
     source_type VARCHAR(30) NOT NULL,
     enrolled_at TIMESTAMP NOT NULL,
     status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
