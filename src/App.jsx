@@ -344,6 +344,11 @@ function App() {
       return;
     }
 
+    if (!canvas) {
+      setCameraError("Camera processing unavailable.");
+      return;
+    }
+
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
 
@@ -356,6 +361,8 @@ function App() {
 
     context.drawImage(video, 0, 0);
 
+    // Temporary image for biometric processing only.
+    // Raw face image is NOT stored in the database.
     const imageBase64 = canvas.toDataURL("image/jpeg", 0.85);
 
     setFace(imageBase64);
@@ -363,19 +370,95 @@ function App() {
     video.srcObject.getTracks().forEach((track) => track.stop());
     video.srcObject = null;
 
-    /*
-     * REAL BIOMETRIC VERIFICATION
-     */
     setLoading(true);
     setCameraError("");
 
     try {
       const currentVoterId =
         localStorage.getItem("voter_id") ||
-        voterId.trim() ||
-        "V001";
+        voterId.trim();
 
-      const response = await api.verifyBiometric({
+      if (!currentVoterId) {
+        throw new Error("Voter ID not found.");
+      }
+
+      /*
+       * FIRST: Try verification.
+       *
+       * If the voter already has an active biometric template,
+       * we verify directly.
+       */
+      try {
+        const verificationResponse = await api.verifyBiometric({
+          voter_id: currentVoterId,
+          biometric_data: {
+            method: "FACE",
+            image_base64: imageBase64,
+          },
+        });
+
+        console.log(
+          "BIOMETRIC VERIFICATION RESPONSE:",
+          verificationResponse
+        );
+
+        if (!verificationResponse?.verified) {
+          setBiometricToken(null);
+          setCameraError(
+            verificationResponse?.message ||
+            "Face verification failed. Please capture again."
+          );
+          return;
+        }
+
+        setBiometricToken(
+          verificationResponse.biometric_token || null
+        );
+
+        setScreen("confirm");
+        return;
+
+      } catch (verificationError) {
+
+        /*
+         * 404 = voter has no biometric enrollment.
+         *
+         * Only then we create a new biometric template.
+         */
+        if (verificationError.response?.status !== 404) {
+          throw verificationError;
+        }
+
+        console.log(
+          "No active biometric template found. Starting enrollment..."
+        );
+      }
+
+      /*
+       * SECOND: Fresh voter enrollment.
+       *
+       * Backend processes the image and stores only
+       * the biometric template/hash.
+       */
+      const enrollmentResponse = await api.enrollBiometric({
+        voter_id: currentVoterId,
+        biometric_data: {
+          method: "FACE",
+          image_base64: imageBase64,
+        },
+        re_enroll: false,
+      });
+
+      console.log(
+        "BIOMETRIC ENROLLMENT RESPONSE:",
+        enrollmentResponse
+      );
+
+      /*
+       * THIRD: Verify immediately against the
+       * newly created biometric template.
+       */
+      const verificationResponse = await api.verifyBiometric({
         voter_id: currentVoterId,
         biometric_data: {
           method: "FACE",
@@ -383,27 +466,41 @@ function App() {
         },
       });
 
-      console.log("BIOMETRIC RESPONSE:", response);
+      console.log(
+        "BIOMETRIC VERIFICATION AFTER ENROLLMENT:",
+        verificationResponse
+      );
 
-      if (!response?.verified) {
+      if (!verificationResponse?.verified) {
         setBiometricToken(null);
         setCameraError(
-          response?.message ||
-          "Face verification failed. Please capture again."
+          verificationResponse?.message ||
+          "Face verification failed after enrollment."
         );
         return;
       }
 
-      setBiometricToken(response.biometric_token || null);
+      setBiometricToken(
+        verificationResponse.biometric_token || null
+      );
+
+      /*
+       * Verification successful.
+       * Move to final vote confirmation.
+       */
       setScreen("confirm");
+
     } catch (error) {
-      console.error("BIOMETRIC ERROR:", error);
+      console.error("BIOMETRIC FLOW ERROR:", error);
+
+      setBiometricToken(null);
 
       setCameraError(
         error.response?.data?.detail ||
         error.message ||
-        "Face verification failed."
+        "Biometric verification failed."
       );
+
     } finally {
       setLoading(false);
     }
@@ -1445,5 +1542,6 @@ function App() {
 }
 
 export default App;
+
 
 
